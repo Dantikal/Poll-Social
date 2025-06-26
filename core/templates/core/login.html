@@ -1,0 +1,31 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<h2 style="margin-bottom: 20px;">Вход в аккаунт</h2>
+
+{% if messages %}
+  <ul style="list-style: none; padding: 0;">
+    {% for message in messages %}
+      <li style="background-color: #ffe6e6; color: #c0392b; padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+        {{ message }}
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+<form method="post" style="display: flex; flex-direction: column; gap: 15px;">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" style="
+    padding: 10px 20px;
+    background-color: #2ecc71;
+    border: none;
+    color: white;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+  ">Войти</button>
+</form>
+
+<p style="margin-top: 15px;">Нет аккаунта? <a href="{% url 'register' %}">Зарегистрируйтесь</a>.</p>
+{% endblock %}

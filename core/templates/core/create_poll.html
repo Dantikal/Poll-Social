@@ -1,0 +1,131 @@
+{% extends "core/base.html" %}
+{% block content %}
+<h2 style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #2c3e50; margin-bottom: 25px; text-align: center;">
+  Создать опрос
+</h2>
+
+<form method="post" id="poll-form" style="
+  max-width: 600px;
+  margin: 0 auto 40px auto;
+  background: #ffffff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+">
+  {% csrf_token %}
+
+  <div style="margin-bottom: 30px; font-size: 16px; color: #34495e;">
+    {{ poll_form.as_p }}
+  </div>
+
+  <div id="formset-container">
+    {{ formset.management_form }}
+    {% for form in formset %}
+      <div class="choice-form" style="
+        margin-bottom: 15px;
+        padding: 15px 20px;
+        background: #f7f9fc;
+        border: 1px solid #d1d9e6;
+        border-radius: 8px;
+        transition: background-color 0.3s ease;
+      ">
+        {% for field in form %}
+          {% if field.name == 'id' or field.name == 'poll' %}
+            {{ field }} {# скрытые поля #}
+          {% else %}
+            <div style="margin-bottom: 10px;">
+              {{ field.label_tag }} {{ field }}
+              {% if field.errors %}
+                <div style="color: red;">{{ field.errors }}</div>
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <button type="button" id="add-more" style="
+    display: block;
+    width: 100%;
+    margin-bottom: 25px;
+    background-color: #f1c40f;
+    color: #2c3e50;
+    border: none;
+    padding: 12px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(241, 196, 15, 0.3);
+    transition: background-color 0.3s ease;
+  ">➕ Добавить ещё вариант</button>
+
+  <button type="submit" style="
+    width: 100%;
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    padding: 14px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(41, 128, 185, 0.4);
+    transition: background-color 0.3s ease;
+  ">Создать опрос</button>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const addButton = document.getElementById('add-more');
+  const formsetContainer = document.getElementById('formset-container');
+  const totalFormsInput = document.querySelector('input[name$="-TOTAL_FORMS"]');
+
+  addButton.addEventListener('click', function () {
+    const currentFormCount = parseInt(totalFormsInput.value);
+    const forms = formsetContainer.querySelectorAll('.choice-form');
+    const lastForm = forms[forms.length - 1];
+
+    if (!lastForm) return;
+
+    // Клонируем последнюю форму
+    const newForm = lastForm.cloneNode(true);
+
+    // Регулярное выражение для замены индекса формы
+    const formRegex = new RegExp(`form-(\\d+)-`, 'g');
+
+    // Меняем индексы в атрибутах name, id, for
+    newForm.querySelectorAll('*').forEach(elem => {
+      if (elem.hasAttribute('name')) {
+        elem.name = elem.name.replace(formRegex, `form-${currentFormCount}-`);
+      }
+      if (elem.id) {
+        elem.id = elem.id.replace(formRegex, `form-${currentFormCount}-`);
+      }
+      if (elem.htmlFor) {
+        elem.htmlFor = elem.htmlFor.replace(formRegex, `form-${currentFormCount}-`);
+      }
+    });
+
+    // Очищаем значения всех видимых полей ввода (кроме hidden)
+    newForm.querySelectorAll('input, textarea, select').forEach(input => {
+      if (input.type !== 'hidden') {
+        if (input.type === 'checkbox' || input.type === 'radio') {
+          input.checked = false;
+        } else {
+          input.value = '';
+        }
+      }
+    });
+
+    formsetContainer.appendChild(newForm);
+
+    // Увеличиваем количество форм в management form
+    totalFormsInput.value = currentFormCount + 1;
+  });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "core/base.html" %}
+{% block content %}
+<div style="max-width: 500px; margin: 40px auto; font-family: 'Segoe UI', Tahoma, sans-serif;">
+  <h2 style="text-align: center; color: #2c3e50; margin-bottom: 25px;">Create Your Account</h2>
+
+  <form method="post" style="background: #f9f9f9; padding: 25px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    {% for field in form %}
+      <div style="margin-bottom: 15px;">
+        <label for="{{ field.id_for_label }}" style="display: block; margin-bottom: 5px; font-weight: 600;">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+          <div style="color: #e74c3c; font-size: 0.9em;">{{ field.errors|striptags }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <button type="submit" style="width: 100%; background-color: #27ae60; color: white; border: none; padding: 12px; border-radius: 5px; font-size: 16px; font-weight: 600; cursor: pointer;">
+      Sign Up
+    </button>
+  </form>
+
+  <p style="text-align: center; margin-top: 15px;">
+    Already have an account?
+    <a href="{% url 'login' %}" style="color: #2980b9; text-decoration: none; font-weight: bold;">Log in</a>
+  </p>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Poll Social</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      margin: 0;
+      background-color: #f5f6fa;
+      color: #2c3e50;
+    }
+    nav {
+      background-color: #2d3436;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    nav a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    .user-info {
+      color: #dfe6e9;
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    hr {
+      border: none;
+      height: 1px;
+      background-color: #dcdde1;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+  <div class="nav-buttons">
+    <a href="{% url 'home' %}" class="btn">Главная</a>
+    {% if user.is_authenticated %}
+      <a href="{% url 'create_poll' %}" class="btn">Создать опрос</a>
+      <a href="{% url 'profile' %}" class="btn">Профиль</a>
+      <a href="{% url 'logout' %}" class="btn btn-logout">Выйти</a>
+    {% else %}
+      <a href="{% url 'login' %}" class="btn">Войти</a>
+      <a href="{% url 'register' %}" class="btn">Регистрация</a>
+    {% endif %}
+  </div>
+</nav>
+
+<style>
+  nav {
+    background-color: #2d3436;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: center;
+  }
+  .nav-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-block;
+    padding: 10px 18px;
+    background-color: #0984e3;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    user-select: none;
+  }
+  .btn:hover,
+  .btn:focus {
+    background-color: #74b9ff;
+    transform: translateY(-2px);
+  }
+  .btn:active {
+    transform: translateY(0);
+  }
+  .btn-logout {
+    background-color: #d63031;
+  }
+  .btn-logout:hover,
+  .btn-logout:focus {
+    background-color: #ff7675;
+  }
+</style>
+
+
+  <div class="container">
+    {% block content %}{% endblock %}
+  </div>
+
+</body>
+</html>
