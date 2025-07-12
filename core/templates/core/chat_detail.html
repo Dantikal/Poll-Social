@@ -1,0 +1,13 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+  <h2>Чат с {{ friend.username }}</h2>
+  <hr>
+  <div>
+    {% for message in messages %}
+      <p><strong>{{ message.sender.username }}:</strong> {{ message.text }}</p>
+    {% empty %}
+      <p>Нет сообщений</p>
+    {% endfor %}
+  </div>
+{% endblock %}

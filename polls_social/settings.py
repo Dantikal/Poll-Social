@@ -26,7 +26,9 @@ SECRET_KEY = 'django-insecure-5s)_iu03s-erumt414@fqp**zmpm20jim&5qlv(2+llt147k96
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['poll-social-6bkq.onrender.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'poll-social-6bkq.onrender.com']
+
+
 
 
 # Application definition

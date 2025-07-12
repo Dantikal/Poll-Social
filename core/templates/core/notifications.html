@@ -1,0 +1,17 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+  <h2>Уведомления</h2>
+  <hr />
+  {% if notifications %}
+    <ul>
+      {% for notification in notifications %}
+        <li style="{% if not notification.is_read %}font-weight: bold;{% endif %}">
+          {{ notification.message }} — {{ notification.timestamp|date:"d.m.Y H:i" }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>У вас нет уведомлений.</p>
+  {% endif %}
+{% endblock %}

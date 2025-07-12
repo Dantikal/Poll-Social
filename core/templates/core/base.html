@@ -1,9 +1,11 @@
+{% load custom_tags %}
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Poll Social</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -11,104 +13,135 @@
       background-color: #f5f6fa;
       color: #2c3e50;
     }
+
     nav {
       background-color: #2d3436;
-      padding: 10px 20px;
+      padding: 15px 30px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
+
+    .nav-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
     nav a {
       color: white;
-      margin: 0 10px;
       text-decoration: none;
-      font-weight: 500;
+      font-weight: 600;
+      padding: 10px 18px;
+      background-color: #0984e3;
+      border-radius: 6px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      user-select: none;
+      position: relative;
+      display: inline-block;
     }
-    nav a:hover {
-      text-decoration: underline;
+
+    nav a:hover,
+    nav a:focus {
+      background-color: #74b9ff;
+      transform: translateY(-2px);
     }
-    .user-info {
-      color: #dfe6e9;
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+
+    nav a:active {
+      transform: translateY(0);
     }
+
+    .btn-logout {
+      background-color: #d63031;
+    }
+
+    .btn-logout:hover,
+    .btn-logout:focus {
+      background-color: #ff7675;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -6px;
+      right: -10px;
+      background: #e74c3c;
+      color: white;
+      border-radius: 50%;
+      padding: 3px 7px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      user-select: none;
+      box-shadow: 0 0 4px rgba(0,0,0,0.2);
+    }
+
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 30px auto;
       background: white;
-      padding: 20px;
+      padding: 25px 30px;
       border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     }
+
     hr {
       border: none;
       height: 1px;
       background-color: #dcdde1;
+      margin: 25px 0;
     }
   </style>
 </head>
 <body>
 
   <nav>
-  <div class="nav-buttons">
-    <a href="{% url 'home' %}" class="btn">Главная</a>
-    {% if user.is_authenticated %}
-      <a href="{% url 'create_poll' %}" class="btn">Создать опрос</a>
-      <a href="{% url 'profile' %}" class="btn">Профиль</a>
-      <a href="{% url 'logout' %}" class="btn btn-logout">Выйти</a>
-    {% else %}
-      <a href="{% url 'login' %}" class="btn">Войти</a>
-      <a href="{% url 'register' %}" class="btn">Регистрация</a>
-    {% endif %}
-  </div>
-</nav>
+    <div class="nav-buttons">
+      <a href="{% url 'home' %}">Главная</a>
 
-<style>
-  nav {
-    background-color: #2d3436;
-    padding: 15px 30px;
-    display: flex;
-    justify-content: center;
-  }
-  .nav-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .btn {
-    display: inline-block;
-    padding: 10px 18px;
-    background-color: #0984e3;
-    color: white;
-    text-decoration: none;
-    font-weight: 600;
-    border-radius: 6px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    user-select: none;
-  }
-  .btn:hover,
-  .btn:focus {
-    background-color: #74b9ff;
-    transform: translateY(-2px);
-  }
-  .btn:active {
-    transform: translateY(0);
-  }
-  .btn-logout {
-    background-color: #d63031;
-  }
-  .btn-logout:hover,
-  .btn-logout:focus {
-    background-color: #ff7675;
-  }
-</style>
+      {% if user.is_authenticated %}
 
+        <a href="{% url 'chat_list' %}" style="position: relative;">
+          Сообщения
+          {% with user|unread_messages_count as unread_messages_count %}
+            {% if unread_messages_count > 0 %}
+              <span class="notification-badge">{{ unread_messages_count }}</span>
+            {% endif %}
+          {% endwith %}
+        </a>
+
+        <a href="{% url 'notifications' %}" style="position: relative;">
+          Уведомления
+          {% with user.notifications_unread_count as notif_count %}
+            {% if notif_count > 0 %}
+              <span class="notification-badge">{{ notif_count }}</span>
+            {% endif %}
+          {% endwith %}
+        </a>
+
+        <a href="{% url 'create_poll' %}">Создать опрос</a>
+        <a href="{% url 'profile' %}">Профиль</a>
+
+        {% with user.friend_requests_received.count as req_count %}
+          <a href="{% url 'friend_requests' %}" style="position: relative;">
+            Заявки
+            {% if req_count > 0 %}
+              <span class="notification-badge">{{ req_count }}</span>
+            {% endif %}
+          </a>
+        {% endwith %}
+
+        <a href="{% url 'logout' %}" class="btn-logout">Выйти</a>
+
+      {% else %}
+        <a href="{% url 'login' %}">Войти</a>
+        <a href="{% url 'register' %}">Регистрация</a>
+      {% endif %}
+    </div>
+  </nav>
 
   <div class="container">
-    {% block content %}{% endblock %}
+    {% block content %}
+    {% endblock %}
   </div>
 
 </body>

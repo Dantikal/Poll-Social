@@ -142,7 +142,7 @@
     button.addEventListener('click', () => {
       const pollId = button.dataset.pollId;
       const commentsBlock = document.getElementById('comments-' + pollId);
-      commentsBlock.style.display = commentsBlock.style.display === 'none' || commentsBlock.style.display === '' ? 'block' : 'none';
+      commentsBlock.style.display = (commentsBlock.style.display === 'none' || commentsBlock.style.display === '') ? 'block' : 'none';
     });
   });
 </script>

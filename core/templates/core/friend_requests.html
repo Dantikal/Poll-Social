@@ -1,0 +1,23 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+  <h2>Входящие заявки в друзья</h2>
+
+  {% if incoming_requests %}
+    <ul>
+      {% for fr in incoming_requests %}
+        <li>
+          {{ fr.from_user.username }}
+          <form method="post" action="{% url 'accept_friend_request' fr.id %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" style="background:#27ae60; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">
+              Принять
+            </button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Нет новых заявок.</p>
+  {% endif %}
+{% endblock %}

@@ -1,131 +1,128 @@
 {% extends "core/base.html" %}
-{% load poll_extras %}
+{% load poll_extras friend_extras %}
 
 {% block content %}
-<div style="max-width: 800px; margin: 40px auto; font-family: 'Segoe UI', sans-serif;">
 
-  <!-- Аватар и имя -->
-  <div style="text-align: center; margin-bottom: 30px;">
+<h2 style="text-align: center; margin-bottom: 30px;">
+  Профиль: <strong>{{ profile_user.username }}</strong>
+</h2>
+
+<div style="max-width: 400px; margin: 0 auto 30px; background: #f0f4f8; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center;">
+  <div style="margin-bottom: 20px;">
     {% if profile.avatar %}
       <img src="{{ profile.avatar.url }}" alt="Avatar"
-           style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover;">
+           style="width: 120px; height: 120px; object-fit: cover; border-radius: 50%; border: 3px solid #bdc3c7;">
     {% else %}
-      <div style="width: 120px; height: 120px; background: #ccc; border-radius: 50%;
-                  display: flex; align-items: center; justify-content: center;
-                  font-size: 36px; font-weight: bold; color: white;">
-        {{ profile_user.username|slice:":1"|upper }}
+      <div style="width: 120px; height: 120px; border-radius: 50%; background-color: #bdc3c7;
+                  font-size: 48px; color: white; line-height: 120px;">
+        {{ profile_user.username|first|upper }}
       </div>
     {% endif %}
-    <h2 style="margin-top: 15px;">{{ profile_user.username }}</h2>
   </div>
 
-  <!-- О себе -->
-  <div style="max-width: 600px; margin: 0 auto 40px; padding: 15px 20px; background: #f9f9f9; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
-    <h3 style="margin-bottom: 12px; color: #2c3e50;">О себе</h3>
-    {% if profile.about %}
-      <p style="font-size: 1rem; color: #444; white-space: pre-wrap;">{{ profile.about }}</p>
-    {% else %}
-      <p style="font-size: 1rem; color: #888; font-style: italic;">Пользователь пока не добавил информацию о себе.</p>
-    {% endif %}
-  </div>
+  <p><strong>О себе:</strong> {{ profile.about|default:"(не указано)" }}</p>
 
-  <!-- Список опросов -->
-  <h3 style="max-width: 400px; margin: 0 auto 20px;">🗳️ Опросы {{ profile_user.username }}</h3>
+  {% if request.user == profile_user %}
+    <a href="{% url 'profile_edit' %}"
+       style="display: inline-block; margin-top: 15px; background-color: #2ecc71; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; transition: background-color 0.3s;"
+       onmouseover="this.style.backgroundColor='#27ae60'" onmouseout="this.style.backgroundColor='#2ecc71'">
+      ✏️ Редактировать профиль
+    </a>
+    <a href="{% url 'friends_list' %}"
+       style="display: inline-block; margin-top: 15px; margin-left: 10px; background-color: #0984e3; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; transition: background-color 0.3s;"
+       onmouseover="this.style.backgroundColor='#065a9e'" onmouseout="this.style.backgroundColor='#0984e3'">
+      👫 Мои друзья
+    </a>
+  {% else %}
+    <!-- Кнопки для добавления в друзья, отправки сообщений и т.д. можно сюда добавить -->
+  {% endif %}
+</div>
 
-  <div style="max-width: 400px; margin: 0 auto;">
-    {% if user_polls %}
-      {% for poll in user_polls %}
-        <div style="background-color: #fff; padding: 20px; border-radius: 10px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+<h3 style="max-width: 400px; margin: 0 auto 20px;">🗳️ Опросы пользователя {{ profile_user.username }}</h3>
 
-          <h4>{{ poll.question }}</h4>
-          <p style="color: #666; font-size: 0.9em;">Создан: {{ poll.created_at|date:"d.m.Y H:i" }}</p>
+<div style="max-width: 400px; margin: 0 auto;">
+  {% if user_polls %}
+    {% for poll in user_polls %}
+      <div id="poll-{{ poll.id }}" style="background-color: #fff; padding: 20px; border-radius: 10px; margin-bottom: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+        <h4>{{ poll.question }}</h4>
+        <p style="color: #666; font-size: 0.9em;">Создан: {{ poll.created_at|date:"d.m.Y H:i" }}</p>
 
-          {% if user|has_voted:poll %}
-            {% with total_votes=poll.choices.all|sum_votes %}
-              {% for choice in poll.choices.all %}
-                {% with percent=choice.votes|percentage:total_votes %}
-                  <div style="margin-bottom: 8px;">
-                    <strong>{{ choice.choice_text }}</strong>: {{ choice.votes }} голос{{ choice.votes|pluralize }} — {{ percent }}%
-                    <div style="background: #ecf0f1; border-radius: 6px; height: 14px;">
-                      <div style="background: #3498db; height: 100%; width: {{ percent }}%; border-radius: 6px;"></div>
-                    </div>
+        {% if request.user|has_voted:poll %}
+          {% with total_votes=poll.choices.all|sum_votes %}
+            {% for choice in poll.choices.all %}
+              {% with percent=choice.votes|percentage:total_votes %}
+                <div style="margin-bottom: 8px;">
+                  <strong>{{ choice.choice_text }}</strong>: {{ choice.votes }} голос{{ choice.votes|pluralize }} — {{ percent }}%
+                  <div style="background: #ecf0f1; border-radius: 6px; height: 14px;">
+                    <div style="background: #3498db; height: 100%; width: {{ percent }}%; border-radius: 6px;"></div>
                   </div>
-                {% endwith %}
-              {% endfor %}
-            {% endwith %}
-          {% else %}
-            <form method="post" action="{% url 'vote' poll.id %}">
-              {% csrf_token %}
-              {% for choice in poll.choices.all %}
-                <label style="display: block; margin-bottom: 10px;">
-                  <input type="radio" name="choice" value="{{ choice.id }}" style="margin-right: 8px;">
-                  {{ choice.choice_text }}
-                </label>
-              {% endfor %}
-              <button type="submit" style="background-color: #3498db; color: white; padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer;">
-                Голосовать
-              </button>
-            </form>
-          {% endif %}
-
-          <!-- Лайк -->
-          <form method="post" action="{% url 'like_poll' poll.id %}" style="display: inline;">
+                </div>
+              {% endwith %}
+            {% endfor %}
+          {% endwith %}
+        {% else %}
+          <form method="post" action="{% url 'vote' poll.id %}#poll-{{ poll.id }}">
             {% csrf_token %}
-            <button type="submit" style="
-              background: transparent;
-              border: 1px solid #ccc;
-              padding: 5px 12px;
-              border-radius: 6px;
-              font-size: 0.9em;
-              cursor: pointer;
-              color: {% if user in poll.likes.all %}#e74c3c{% else %}#7f8c8d{% endif %};
-            ">
-              {% if user in poll.likes.all %}❤️ Лайкнут{% else %}🤍 Лайк{% endif %}
+            {% for choice in poll.choices.all %}
+              <label style="display: block; margin-bottom: 10px;">
+                <input type="radio" name="choice" value="{{ choice.id }}" style="margin-right: 8px;">
+                {{ choice.choice_text }}
+              </label>
+            {% endfor %}
+            <button type="submit"
+                    style="background-color: #3498db; color: white; padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer;">
+              Голосовать
             </button>
           </form>
-          <span style="margin-left: 10px; font-size: 0.9em; color: #555;">{{ poll.total_likes }} лайк{{ poll.total_likes|pluralize }}</span>
+        {% endif %}
 
-          <!-- Комментарии -->
-          <button class="toggle-comments-btn" data-poll-id="{{ poll.id }}" style="margin-top: 15px; background-color: #2980b9; color: white; border: none; padding: 7px 12px; border-radius: 6px; cursor: pointer;">
-            💬 Комментарии ({{ poll.comments.count }})
+        <form method="post" action="{% url 'like_poll' poll.id %}#poll-{{ poll.id }}" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit"
+                  style="background: transparent; border: 1px solid #ccc; padding: 5px 12px; border-radius: 6px; font-size: 0.9em; cursor: pointer; color: {% if request.user in poll.likes.all %}#e74c3c{% else %}#7f8c8d{% endif %};">
+            {% if request.user in poll.likes.all %}❤️ Лайкнут{% else %}🤍 Лайк{% endif %}
           </button>
+        </form>
+        <span style="margin-left: 10px; font-size: 0.9em; color: #555;">
+          {{ poll.total_likes }} лайк{{ poll.total_likes|pluralize }}
+        </span>
 
-          <div id="comments-{{ poll.id }}" class="comments-block" style="display: none; margin-top: 15px;">
-            {% for comment in poll.comments.all %}
-              <div style="padding: 10px 15px; background: #f7f7f7; border-radius: 8px; margin-bottom: 12px;">
-                <p>
-                  <a href="{% url 'user_profile' comment.user.username %}" style="font-weight: bold; color: #2980b9; text-decoration: none;">
-                    {{ comment.user.username }}
-                  </a>: {{ comment.text }}
-                </p>
-                <small style="color: #999;">{{ comment.created_at|date:"d.m.Y H:i" }}</small>
-              </div>
-            {% empty %}
-              <p style="color: #aaa;">Комментариев пока нет.</p>
-            {% endfor %}
+        <button class="toggle-comments-btn" data-poll-id="{{ poll.id }}"
+                style="margin-top: 15px; background-color: #2980b9; color: white; border: none; padding: 7px 12px; border-radius: 6px; cursor: pointer;">
+          💬 Комментарии ({{ poll.comments.count }})
+        </button>
 
-            {% if user.is_authenticated %}
-              <form method="post" action="{% url 'add_comment' poll.id %}">
-                {% csrf_token %}
-                <textarea name="text" rows="2" placeholder="Напишите комментарий..." style="width: 100%; border-radius: 6px; border: 1px solid #ccc; padding: 8px; resize: vertical;"></textarea>
-                <button type="submit" style="margin-top: 8px; background-color: #27ae60; color: white; border: none; padding: 8px 16px; border-radius: 6px;">Отправить</button>
-              </form>
-            {% else %}
-              <p><a href="{% url 'login' %}">Войдите</a>, чтобы оставить комментарий.</p>
-            {% endif %}
-          </div>
+        <div id="comments-{{ poll.id }}" class="comments-block" style="display: none; margin-top: 15px;">
+          {% for comment in poll.comments.all %}
+            <div style="padding: 10px 15px; background: #f7f7f7; border-radius: 8px; margin-bottom: 12px;">
+              <p><strong>{{ comment.user.username }}</strong>: {{ comment.text }}</p>
+              <small style="color: #999;">{{ comment.created_at|date:"d.m.Y H:i" }}</small>
+            </div>
+          {% empty %}
+            <p style="color: #aaa;">Комментариев пока нет.</p>
+          {% endfor %}
 
+          {% if request.user.is_authenticated %}
+            <form method="post" action="{% url 'add_comment' poll.id %}#poll-{{ poll.id }}">
+              {% csrf_token %}
+              <textarea name="text" rows="2" placeholder="Напишите комментарий..."
+                        style="width: 100%; border-radius: 6px; border: 1px solid #ccc; padding: 8px; resize: vertical;"></textarea>
+              <button type="submit" style="margin-top: 8px; background-color: #27ae60; color: white; border: none; padding: 8px 16px; border-radius: 6px;">
+                Отправить
+              </button>
+            </form>
+          {% else %}
+            <p><a href="{% url 'login' %}">Войдите</a>, чтобы оставить комментарий.</p>
+          {% endif %}
         </div>
-      {% endfor %}
-    {% else %}
-      <p style="text-align: center;">Вы пока не создали ни одного опроса.</p>
-    {% endif %}
-  </div>
-
+      </div>
+    {% endfor %}
+  {% else %}
+    <p style="text-align: center;">Пользователь ещё не создал ни одного опроса.</p>
+  {% endif %}
 </div>
 
 <script>
-  // Показ/скрытие комментариев
   document.querySelectorAll('.toggle-comments-btn').forEach(button => {
     button.addEventListener('click', () => {
       const pollId = button.dataset.pollId;

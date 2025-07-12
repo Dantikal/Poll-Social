@@ -1,0 +1,115 @@
+{% extends 'core/base.html' %}
+{% load custom_tags %}
+
+{% block content %}
+  <h2 class="chat-header">Сообщение</h2>
+
+  <ul class="chat-list">
+    {% for user in users %}
+      <li class="chat-item">
+        <a href="{% url 'chat_view' user.username %}" class="chat-link">
+          <span class="chat-icon">💬</span>
+          <span class="chat-username">{{ user.username }}</span>
+          {% with unread_count=unread_dict|get_item:user.id %}
+            {% if unread_count %}
+              <span class="unread-badge">{{ unread_count }}</span>
+            {% endif %}
+          {% endwith %}
+        </a>
+      </li>
+    {% empty %}
+      <li class="no-chats">Нет активных чатов.</li>
+    {% endfor %}
+  </ul>
+
+  <style>
+    .chat-header {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: #34495e;
+      margin-bottom: 12px;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 8px;
+      user-select: none;
+    }
+
+    .chat-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 auto;
+      max-width: 420px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .chat-item + .chat-item {
+      border-top: 1px solid #e6eaf0;
+    }
+
+    .chat-link {
+      display: flex;
+      align-items: center;
+      padding: 16px 24px;
+      color: #2c3e50;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: background-color 0.25s ease, color 0.25s ease;
+      position: relative;
+    }
+
+    .chat-link:hover {
+      background-color: #f5f8fb;
+      color: #1a73e8;
+    }
+
+    .chat-icon {
+      font-size: 1.6rem;
+      margin-right: 16px;
+      transition: transform 0.3s ease;
+    }
+
+    .chat-link:hover .chat-icon {
+      transform: scale(1.15);
+    }
+
+    .chat-username {
+      flex-grow: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .unread-badge {
+      background-color: #e74c3c;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 9999px;
+      padding: 5px 12px;
+      min-width: 28px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(231, 76, 60, 0.4);
+      user-select: none;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .unread-badge:hover {
+      box-shadow: 0 4px 12px rgba(231, 76, 60, 0.6);
+    }
+
+    .no-chats {
+      padding: 28px;
+      text-align: center;
+      color: #7f8c8d;
+      font-style: italic;
+      font-size: 1rem;
+    }
+  </style>
+{% endblock %}

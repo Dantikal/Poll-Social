@@ -5,4 +5,4 @@ class CoreConfig(AppConfig):
     name = 'core'
 
     def ready(self):
-        import core.signals  # здесь мы подключаем сигналы
+        import core.signals  # замените core на название вашего приложения
